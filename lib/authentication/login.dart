@@ -1,7 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:getx_mysql_tutorial/authentication/signup.dart';
+import 'package:getx_mysql_tutorial/user/pages/main_screen.dart';
+import 'package:getx_mysql_tutorial/user/user_pref.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+
+import '../api/api.dart';
+import '../model/user.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -15,6 +24,39 @@ class _LoginPageState extends State<LoginPage> {
   var formKey = GlobalKey<FormState>();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
+
+  userLogin() async{
+    try {
+      var res = await http.post(
+          Uri.parse(API.login),
+          body: {
+            'user_email' : emailController.text.trim(),
+            'user_password' : passwordController.text.trim()
+          });
+
+      if(res.statusCode == 200){
+        var resLogin = jsonDecode(res.body);
+        if(resLogin['success'] == true){
+          Fluttertoast.showToast(msg: 'Login successfully');
+          User userInfo = User.fromJson(resLogin['userData']);
+
+          await RememberUser.saveRememberUserInfo(userInfo);
+
+          Get.to(MainScreen());
+
+          setState(() {
+            emailController.clear();
+            passwordController.clear();
+          });
+        }else{
+          Fluttertoast.showToast(msg: 'Please check your email and password');
+        }
+      }
+    } catch (e) {
+      print(e.toString());
+      Fluttertoast.showToast(msg: e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +147,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 GestureDetector(
                   onTap: (){
-
+                    if(formKey.currentState!.validate()){
+                      userLogin();
+                    }
                   },
                   child: Container(
                     child: Padding(
