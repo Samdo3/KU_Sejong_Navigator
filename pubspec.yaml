@@ -38,11 +38,12 @@ dependencies:
   cupertino_icons: ^1.0.2
   get:
   google_fonts:
-  http: ^0.13.5
+  http: 1.1.0 #맵박스 때문에 버전 이걸로 해야함!
   fluttertoast: ^8.0.9
   geolocator: ^10.1.0
   flutter_map: ^6.0.1
   latlong2: ^0.9.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

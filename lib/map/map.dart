@@ -68,7 +68,7 @@ class _MyMapState extends State<MyMap> {
               onPressed: () {
                 getUserLocation();
               },
-              child: const Text('My Lover Jaena'),
+              child: const Text('Show My Location'),
             ),
           ),
         ],
