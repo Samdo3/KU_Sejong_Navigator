@@ -5,11 +5,6 @@ import 'access_tokens.dart'; //access_tokens.dart 파일을 import
 import 'package:geolocator/geolocator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-void main() {
-  runApp(
-    const MaterialApp(home: MyMap()),
-  );
-}
 
 class MyMap extends StatefulWidget {
   const MyMap({Key? key}) : super(key:key);
