@@ -72,22 +72,51 @@ class _MyMapState extends State<MyMap> {
   }
 
   void getUserLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      LatLng newLocation = LatLng(position.latitude, position.longitude);
+    // 위치 권한이 부여되었는지 확인
+    bool isLocationPermissionGranted = await _checkLocationPermission();
 
-      setState(() {
-        userLocation = newLocation;
-        mapController.move(newLocation, 19.0);
-      });
-    } catch (e) {
-      print('Error getting user location: $e');
-      showToast('Error getting user location: $e');
+    if (isLocationPermissionGranted) {
+      try {
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+        LatLng newLocation = LatLng(position.latitude, position.longitude);
+
+        setState(() {
+          userLocation = newLocation;
+          mapController.move(newLocation, 19.0);
+        });
+      } catch (e) {
+        print('사용자 위치 가져오기 오류: $e');
+        showToast('사용자 위치 가져오기 오류: $e');
+      }
+    } else {
+      // 위치 권한이 부여되지 않았을 경우 메시지 표시 또는 권한 요청
+      showToast('위치 권한이 부여되지 않았습니다.');
+      _requestLocationPermission();
     }
   }
-  void showToast(String message) {
+
+  Future<bool> _checkLocationPermission() async {
+    // 위치 권한이 부여되었는지 확인
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
+      return true;
+    } else {
+      // 권한이 부여되지 않았다면 요청
+      return await _requestLocationPermission();
+    }
+  }
+
+  Future<bool> _requestLocationPermission() async {
+    // 위치 권한 요청
+    LocationPermission permission = await Geolocator.requestPermission();
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
+  }
+
+  void showToast(String message) {  //토스트 형식
     Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
