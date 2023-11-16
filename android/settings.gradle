@@ -15,32 +15,6 @@ pluginManagement {
     }
 }
 
-
-// Mapbox Navigation SDK 설정 추가
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-    repositories {
-        google()
-        mavenCentral()
-        jcenter() // Warning: this repository is going to shut down soon
-        maven {
-            url 'https://api.mapbox.com/downloads/v2/releases/maven'
-            authentication {
-                basic(BasicAuthentication)
-            }
-            credentials {
-                // 아래 username은 변경하지 말아주세요.
-                // 항상 `mapbox`여야 합니다(개인 username이 아님).
-                username = "mapbox"
-                // gradle.properties에 저장한 비밀 토큰을 비밀번호로 사용합니다.
-                password = 'sk.eyJ1Ijoic2FtZG8zMzMiLCJhIjoiY2xvdThuaXdtMGhxZTJpcWVncm15bnJldSJ9.k9D_ixngUlTvXHi757B7lg'
-            }
-        }
-        maven {
-            url 'https://storage.googleapis.com/download.flutter.io' //이거 한줄 때매 5시간 날림
-        }
-    }
-}
 include ":app"
 
 apply from: "${settings.ext.flutterSdkPath}/packages/flutter_tools/gradle/app_plugin_loader.gradle"

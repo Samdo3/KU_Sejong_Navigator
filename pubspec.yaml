@@ -29,6 +29,8 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  mapbox_gl: 0.16.0
+  flutter_polyline_points: ^2.0.0
   flutter:
     sdk: flutter
 
@@ -41,7 +43,6 @@ dependencies:
   http: 1.1.0 #맵박스 때문에 버전 이걸로 해야함!
   fluttertoast: ^8.0.9
   geolocator: ^10.1.0
-  flutter_map: ^6.0.1
   latlong2: ^0.9.0
   shared_preferences: ^2.2.2
 

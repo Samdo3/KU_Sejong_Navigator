@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:getx_mysql_tutorial/map/map.dart';
+//import 'package:getx_mysql_tutorial/map/map.dart';
+import 'package:getx_mysql_tutorial/map/setup.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -29,7 +30,7 @@ class MainScreen extends StatelessWidget {
     bool isLocationPermissionGranted = await _checkLocationPermission();
 
     if (isLocationPermissionGranted) {
-      Get.to(() => MyMap());
+      Get.to(() => MapScreen());
     } else {
       // 위치 권한이 부여되지 않았을 경우 메시지 표시 또는 권한 요청
       showToast('위치 권한이 부여되지 않았습니다.');
