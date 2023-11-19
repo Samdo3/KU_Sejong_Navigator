@@ -97,25 +97,6 @@ class _MyMapState extends State<MyMap> {
     }
   }
 
-  Future<bool> _checkLocationPermission() async {
-    // 위치 권한이 부여되었는지 확인
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse) {
-      return true;
-    } else {
-      // 권한이 부여되지 않았다면 요청
-      return await _requestLocationPermission();
-    }
-  }
-
-  Future<bool> _requestLocationPermission() async {
-    // 위치 권한 요청
-    LocationPermission permission = await Geolocator.requestPermission();
-    return permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse;
-  }
-
   void showToast(String message) {  //토스트 형식
     Fluttertoast.showToast(
       msg: message,
