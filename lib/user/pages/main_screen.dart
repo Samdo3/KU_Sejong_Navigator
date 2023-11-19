@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 //import 'package:getx_mysql_tutorial/map/map.dart';
-import 'package:getx_mysql_tutorial/map/setup.dart';
+import 'package:getx_mysql_tutorial/map/navigator.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 

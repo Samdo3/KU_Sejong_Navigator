@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'access_tokens.dart'; //access_tokens.dart 파일을 import
-import 'get_user_location.dart';
+import 'get_user_location.dart'; //get_user_location.dart 파일을 import
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -47,14 +47,12 @@ class _MapScreenState extends State<MapScreen> {
 
   // 비동기 함수 정의
   Future<void> _initializeMap() async {
-    // 마커 이미지 추가
     getLocation.onLocationChanged = (LatLng newLocation) async {
       setState(() {
         origin = newLocation;
       });
       await _updateMapWithRoute();
     };
-
       await getLocation.determinePosition();
   }
 
