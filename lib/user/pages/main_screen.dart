@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:getx_mysql_tutorial/map/navigator.dart';
+import 'package:getx_mysql_tutorial/user/pages/timetable.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 
 class MainScreen extends StatelessWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -15,11 +15,30 @@ class MainScreen extends StatelessWidget {
         title: Text('Main Screen'),
       ),
       body: Center(
-        child:ElevatedButton(
-          onPressed: (){
-            _AskLocationPermission();
-          },
-          child: Text('경로 안내'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                _AskLocationPermission();
+              },
+              style: ElevatedButton.styleFrom(
+                fixedSize: Size(120, 50), // Set the desired size for the button
+              ),
+              child: Text('경로 안내'),
+            ),
+            SizedBox(height: 20), // Add some spacing between the buttons
+            ElevatedButton(
+              onPressed: () {
+                Get.to(() => Timetable());
+              },
+              style: ElevatedButton.styleFrom(
+                fixedSize: Size(120, 50), // Set the same size for the button
+              ),
+              child: Text('시간표'),
+            ),
+            SizedBox(height: 20),
+          ],
         ),
       ),
     );
