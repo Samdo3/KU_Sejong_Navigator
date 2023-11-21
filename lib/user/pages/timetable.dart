@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_session_manager/flutter_session_manager.dart';
 import 'package:flutter_timetable_view/flutter_timetable_view.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:getx_mysql_tutorial/user/user_pref.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../../api/api.dart';
 import 'package:http/http.dart' as http;
+
+import '../../model/Event.dart';
+import '../../model/Event_pref.dart';
 
 void main() => runApp(MyApp());
 
@@ -85,7 +89,7 @@ class _TimetableState extends State<Timetable> {
 
   void _showAddEventDialog(BuildContext context) {
     String className = '';
-    String buildingInfo = '';
+    String buildingInfo = '과학기술2관'; // 기본값은 '과학기술1관'으로 설정
 
     showDialog(
       context: context,
@@ -104,14 +108,28 @@ class _TimetableState extends State<Timetable> {
                 ),
               ),
               SizedBox(height: 10),
-              TextField(
-                onChanged: (value) {
-                  buildingInfo = value;
+              DropdownButton<String>(
+                value: buildingInfo,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    buildingInfo = newValue!;
+                  });
                 },
-                decoration: InputDecoration(
-                  labelText: 'Building Information',
-                  hintText: 'Enter building information',
-                ),
+                items: <String>[
+                  '과학기술2관',
+                  '과학기술1관',
+                  '가속기ICT융합관',
+                  '산학협력관',
+                  '농심국제관',
+                  '공공정책관',
+                  '석원경상관',
+                  '문화스포츠관',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
               SizedBox(height: 10),
               Row(
@@ -277,7 +295,6 @@ class _TimetableState extends State<Timetable> {
 
         if (res.statusCode == 200) {
           var resData = jsonDecode(res.body);
-
           if (resData['success'] == true) {
             TableEvent addedEvent = TableEvent(
               title: '$className - $buildingInfo',
@@ -310,6 +327,7 @@ class _TimetableState extends State<Timetable> {
     } else {
       print('Please enter class name and building information');
     }
+
   }
 
   void _updateLocalTimetable(String day, TableEvent event) {
