@@ -1,6 +1,6 @@
 class AppConstants {
   static String mapBoxAccessToken =
-      'sk.eyJ1Ijoic2FtZG8zMzMiLCJhIjoiY2xvdThuaXdtMGhxZTJpcWVncm15bnJldSJ9.k9D_ixngUlTvXHi757B7lg';
+      'pk.eyJ1Ijoic2FtZG8zMzMiLCJhIjoiY2xvZTA4ZHVxMDk2NTJwbzNxM2UyaWp2YSJ9.aAEN_UMKlCKHalOa7Tkg0Q';
   static const String mapBoxStyleId = 'samdo333';
 
 }
