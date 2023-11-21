@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -27,7 +28,7 @@ class _MapScreenState extends State<MapScreen> {
   LatLng destination =  LatLng(36.610869, 127.287040); // 도착지 좌표 (원하는 좌표로 교체하세요)
   GetLocation getLocation = GetLocation();
   late RouteData routeData; // Store route data
-  late Uint8List markerImage; // Store marker image
+  Map<String, Uint8List> markerImages = {}; // Store marker images
 
   @override
   void initState() {
@@ -37,11 +38,12 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _loadMarkerImage() async {
-    markerImage = await loadMarkerImage();
+    markerImages['red_marker'] = await loadMarkerImage("assets/images/red_marker.png");
+    markerImages['yellow_marker']= await loadMarkerImage("assets/images/yellow_marker.png");
   }
   //마커 이미지 경로 인식
-  Future<Uint8List> loadMarkerImage() async {
-    var byteData = await rootBundle.load("assets/images/red_marker.png");
+  Future<Uint8List> loadMarkerImage(String imagePath) async {
+    var byteData = await rootBundle.load(imagePath);
     return byteData.buffer.asUint8List();
   }
 
@@ -68,28 +70,30 @@ class _MapScreenState extends State<MapScreen> {
     try {
       routeData = await fetchRoute();
 
-      _controller.addImage('marker', markerImage);
+      _controller.addImage('red_marker', markerImages['red_marker']!);
+      _controller.addImage('yellow_marker', markerImages['yellow_marker']!);
       _controller.clearLines();
       _controller.clearSymbols();
 
       _controller.addLine(LineOptions(
         geometry: [origin, ...routeData.route, destination],
-        lineColor: "#00FF00",
-        lineWidth: 2.0,
+        lineColor: "#3bb2d0",
+        lineWidth: 6.0,
+        lineOpacity: 0.8,
       ));
 
       _controller.addSymbol(SymbolOptions(
         geometry: origin,
-        iconImage: 'marker',
-        iconSize: 0.5,
+        iconImage: 'red_marker',
+        iconSize: 0.1,
         textField: '현재 위치',
         textOffset: Offset(0, 2),
       ));
 
       _controller.addSymbol(SymbolOptions(
         geometry: destination,
-        iconImage: 'marker',
-        iconSize: 0.5,
+        iconImage: 'yellow_marker',
+        iconSize: 0.1,
         textField: '도착지',
         textOffset: Offset(0, 2),
       ));
@@ -99,6 +103,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  //mapbox루트 정보 반환
   Future<RouteData> fetchRoute() async {
     try {
       String routeResponse = (await http.get(
