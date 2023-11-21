@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_session_manager/flutter_session_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:getx_mysql_tutorial/authentication/signup.dart';
@@ -8,7 +8,6 @@ import 'package:getx_mysql_tutorial/user/pages/main_screen.dart';
 import 'package:getx_mysql_tutorial/user/user_pref.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-
 import '../api/api.dart';
 import '../model/user.dart';
 
@@ -39,6 +38,9 @@ class _LoginPageState extends State<LoginPage> {
         if(resLogin['success'] == true){
           Fluttertoast.showToast(msg: 'Login successfully');
           User userInfo = User.fromJson(resLogin['userData']);
+
+          var sessionManager = SessionManager();
+          await sessionManager.set("user_info", userInfo);
 
           await RememberUser.saveRememberUserInfo(userInfo);
 
