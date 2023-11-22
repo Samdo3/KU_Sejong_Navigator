@@ -1,14 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'access_tokens.dart'; //access_tokens.dart 파일을 import
 import 'get_user_location.dart'; //get_user_location.dart 파일을 import
+import 'package:getx_mysql_tutorial/user/pages/main_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import '../api/api.dart';
 import 'package:flutter_session_manager/flutter_session_manager.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RouteData {
   List<LatLng> route;
@@ -32,13 +35,18 @@ class _MapScreenState extends State<MapScreen> {
   GetLocation getLocation = GetLocation();
   late RouteData routeData; // Store route data
   Map<String, Uint8List> markerImages = {}; // Store marker images
+  Stopwatch stopwatch = new Stopwatch()..start();
+
+  // Function to zoom to a specific location on the map
+  void _zoomToLocation(LatLng location) {
+    _controller.animateCamera(
+      CameraUpdate.newLatLngZoom(location, 19.0),
+    );
+  }
 
   getEvents() async{
     dynamic id = await SessionManager().get("user_info");
-
-    print('007000');
     print(id['user_id']);
-
 
     try {
       var res = await http.post(
@@ -64,6 +72,7 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     _loadMarkerImage(); // Load marker image before initializing the map
     _initializeMap();
+    getEvents();
   }
 
   Future<void> _loadMarkerImage() async {
@@ -84,7 +93,8 @@ class _MapScreenState extends State<MapScreen> {
       });
       await _updateMapWithRoute();
     };
-      await getLocation.determinePosition();
+
+    await getLocation.determinePosition();
   }
 
 
@@ -98,6 +108,7 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _updateMapWithRoute() async {
     try {
       routeData = await fetchRoute();
+      print('Async and Await in 1: ${stopwatch.elapsedMilliseconds}ms');
 
       _controller.addImage('red_marker', markerImages['red_marker']!);
       _controller.addImage('yellow_marker', markerImages['yellow_marker']!);
@@ -127,6 +138,30 @@ class _MapScreenState extends State<MapScreen> {
         textOffset: Offset(0, 2),
       ));
 
+      // Check if the current location is close to the destination
+      double distance = await Geolocator.distanceBetween(
+        origin.latitude,
+        origin.longitude,
+        destination.latitude,
+        destination.longitude,
+      );
+      // Adjust the threshold as needed
+      if (distance < 10) {
+        // The distance is less than 20 meters, consider it as arriving
+        Fluttertoast.showToast(
+          msg: '목적지에 도착하여 안내를 종료합니다.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+        // Navigate to a different screen or widget
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+        );
+      }
     } catch (error) {
       print("지도 업데이트 오류: $error");
     }
@@ -141,15 +176,12 @@ class _MapScreenState extends State<MapScreen> {
                 "${origin.longitude},${origin.latitude};"
                 "${destination.longitude},${destination.latitude}?"
                 "access_token=${AppConstants.mapBoxAccessToken}"
-                "&steps=true&language=ko&walkway_bias=-0.2&overview=full"
+                "&language=ko&walkway_bias=-0.2&overview=full"
           //walkway_bias=-0.2로 고정
         ),
       )).body;
 
-      print("Route Response: $routeResponse");
       var decodedResponse = json.decode(routeResponse);
-
-      print("Decoded Response: $decodedResponse");
 
       // route 매핑
       List<PointLatLng> result = PolylinePoints()
@@ -179,14 +211,12 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Map Example'),
+        title: Text('고려대학교 세종캠퍼스 길 안내'),
       ),
       body:  buildMap(),
       floatingActionButton: FloatingActionButton(
-        // child: Text('Click'),
         child: Icon(Icons.location_searching),
         onPressed: ()=> {
-          getEvents(),
           showModalBottomSheet(
             context: context,
             builder: (context) {
@@ -197,8 +227,6 @@ class _MapScreenState extends State<MapScreen> {
                     eventList.length, //리스트 개수(건물개수
                         (index) => GestureDetector(
                       onTap: () {
-                        // Handle item click here
-                        //print("Item $index clicked");
                         String coordinatesString = eventList[index][10];
 
                         // Extracting latitude and longitude from the string
@@ -215,6 +243,11 @@ class _MapScreenState extends State<MapScreen> {
                           setState(() {
                             destination = LatLng(latitude, longitude);
                           });
+
+                          // Zoom to the selected location
+                          _zoomToLocation(origin);
+
+                          Navigator.pop(context);
                         } else {
                           // Handle invalid coordinates string
                           print('Invalid coordinates string: $coordinatesString');
@@ -241,8 +274,8 @@ class _MapScreenState extends State<MapScreen> {
             },
             elevation: 50,
             isDismissible: true, // 바텀시트를 닫을지 말지 설정
-            barrierColor: Colors.grey.withOpacity(0.3), // 바텀시트 아닌 영역의 컬러
-            backgroundColor: Colors.blue.shade200, // 바텀시트 배경 컬러
+            barrierColor: Colors.grey.withOpacity(0.7), // 바텀시트 아닌 영역의 컬러
+            backgroundColor: Colors.deepPurple.shade50, // 바텀시트 배경 컬러
             constraints: const BoxConstraints( // 사이즈 조절
               minWidth: 100,
               maxWidth: 300,
@@ -257,12 +290,10 @@ class _MapScreenState extends State<MapScreen> {
   }
 
 
-
-
   Widget buildMap() {
     return MapboxMap(
       accessToken: AppConstants.mapBoxAccessToken,
-      styleString: MapboxStyles.SATELLITE_STREETS ,
+      styleString: MapboxStyles.MAPBOX_STREETS ,
       initialCameraPosition: CameraPosition(
         target: LatLng(36.61067, 127.2871), //고려대 세종캠퍼스 GPS
         zoom: 15.0,
@@ -277,7 +308,6 @@ class _MapScreenState extends State<MapScreen> {
         setState(() {
           _controller = controller;
         });
-
 
     try {
       await _updateMapWithRoute(); // Update map after initializing controller

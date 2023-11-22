@@ -35,7 +35,7 @@ class GetLocation {
   void _startLocationUpdates() {
     final LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
-      distanceFilter: 10,
+      distanceFilter: 1
     );
 
     // When we reach here, permissions are granted and we can
