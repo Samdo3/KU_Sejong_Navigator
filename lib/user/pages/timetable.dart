@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_session_manager/flutter_session_manager.dart';
 import 'package:flutter_timetable_view/flutter_timetable_view.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:getx_mysql_tutorial/user/user_pref.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../../api/api.dart';
 import 'package:http/http.dart' as http;
-
-import '../../model/Event.dart';
-import '../../model/Event_pref.dart';
 
 void main() => runApp(MyApp());
 
@@ -52,10 +48,25 @@ class _TimetableState extends State<Timetable> {
       ),
       body: Column(
         children: [
-
-          ElevatedButton(
-            onPressed: () => _showAddEventDialog(context),
-            child: Text('Add Event'),
+          Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () => _showAddEventDialog(context),
+                  child: Text('Add Event'),
+                ),
+                SizedBox(width: 16), // Adjust the spacing between buttons
+                ElevatedButton(
+                  onPressed: () {
+                    for (LaneEvents laneEvents in laneEventsList) {
+                      _showEventsList(laneEvents);
+                    }
+                  },
+                  child: Text('View Events'),
+                ),
+              ],
+            ),
           ),
           DropdownButton<String>(
             value: selectedDay,
@@ -168,15 +179,6 @@ class _TimetableState extends State<Timetable> {
                 Navigator.pop(context);
               },
               child: Text('Add'),
-            ),
-            TextButton(
-              onPressed: () {
-                _showEventsList(laneEventsList.firstWhere(
-                      (element) => element.lane.name == selectedDay,
-                  orElse: () => LaneEvents(lane: Lane(name: selectedDay), events: []),
-                ));
-              },
-              child: Text('View Events'),
             ),
           ],
         );
