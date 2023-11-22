@@ -28,7 +28,7 @@ class _MapScreenState extends State<MapScreen> {
   List<LatLng> turnPoints = [];
   List<dynamic> eventList = [];
   LatLng origin =  LatLng(0, 0); // 초기값은 임의로 설정, 실제로는 위치 업데이트 후 값이 할당됩니다.
-  LatLng destination =  LatLng(36.610869, 127.287040); // 도착지 좌표 (원하는 좌표로 교체하세요)
+  LatLng destination =  LatLng(0, 0);
   GetLocation getLocation = GetLocation();
   late RouteData routeData; // Store route data
   Map<String, Uint8List> markerImages = {}; // Store marker images
@@ -179,7 +179,7 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Map Exampe'),
+        title: Text('Map Example'),
       ),
       body:  buildMap(),
       floatingActionButton: FloatingActionButton(
@@ -198,9 +198,27 @@ class _MapScreenState extends State<MapScreen> {
                         (index) => GestureDetector(
                       onTap: () {
                         // Handle item click here
-                        print("Item $index clicked");
-                        //destination = eventList[index][10];
-                        // You can add your logic to handle the click event
+                        //print("Item $index clicked");
+                        String coordinatesString = eventList[index][10];
+
+                        // Extracting latitude and longitude from the string
+                        RegExp regex = RegExp(r'([-+]?\d+\.\d+), ([-+]?\d+\.\d+)');
+                        Match? match = regex.firstMatch(coordinatesString);
+
+                        if (match != null && match.groupCount == 2) {
+                          double latitude = double.parse(match.group(1)!);
+                          print(latitude);
+                          double longitude = double.parse(match.group(2)!);
+                          print(longitude);
+
+                          // Update the destination with the parsed coordinates
+                          setState(() {
+                            destination = LatLng(latitude, longitude);
+                          });
+                        } else {
+                          // Handle invalid coordinates string
+                          print('Invalid coordinates string: $coordinatesString');
+                        }
                       },
                       child: Container(
                         height: 100,
