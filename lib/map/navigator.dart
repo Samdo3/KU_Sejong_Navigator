@@ -152,21 +152,75 @@ class _MapScreenState extends State<MapScreen> {
       appBar: AppBar(
         title: Text('Map Example'),
       ),
-      body: buildMap(),
+      body:  buildMap(),
+    floatingActionButton: FloatingActionButton(
+    // child: Text('Click'),
+      child: Icon(Icons.location_searching),
+      onPressed: ()=> {
+        showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: ListView(
+            children: [
+              ...List.generate(
+                10,
+                    (index) => Container(
+                  height: 100,
+                  width: double.infinity,
+                  margin: const EdgeInsets.all(20),
+                  color: Colors.white,
+                  alignment: Alignment.center,
+                  child: Text(
+                    "index : $index",
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                ),
+              )
+            ],
+              ),
+            );
+           },
+          elevation: 50,
+          isDismissible: true, // 바텀시트를 닫을지 말지 설정
+          barrierColor: Colors.grey.withOpacity(0.3), // 바텀시트 아닌 영역의 컬러
+          backgroundColor: Colors.blue.shade200, // 바텀시트 배경 컬러
+          constraints: const BoxConstraints( // 사이즈 조절
+            minWidth: 100,
+            maxWidth: 300,
+            minHeight: 100,
+            maxHeight: 500,
+          ),
+          isScrollControlled: true, // true = 전체 화면 차이
+         )
+      },
+     ),
     );
   }
+
+
+
 
   Widget buildMap() {
     return MapboxMap(
       accessToken: AppConstants.mapBoxAccessToken,
+      styleString: MapboxStyles.SATELLITE_STREETS ,
       initialCameraPosition: CameraPosition(
-        target: LatLng(36.61067, 127.2871), //사실 이 코드 숨길 필요없음
+        target: LatLng(36.61067, 127.2871), //고려대 세종캠퍼스 GPS
         zoom: 15.0,
       ),
-      onMapCreated: (MapboxMapController controller) async {
+     cameraTargetBounds: CameraTargetBounds( //최대 맵크기 제한
+     LatLngBounds(
+     southwest: LatLng(36.6012, 127.2776),
+     northeast: LatLng(36.6162, 127.2982),
+     )),
+     minMaxZoomPreference: MinMaxZoomPreference(13, null), //최소 확대 레벨
+     onMapCreated: (MapboxMapController controller) async {
         setState(() {
           _controller = controller;
         });
+
 
     try {
       await _updateMapWithRoute(); // Update map after initializing controller
