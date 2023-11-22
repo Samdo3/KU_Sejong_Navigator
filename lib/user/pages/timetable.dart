@@ -59,9 +59,7 @@ class _TimetableState extends State<Timetable> {
                 SizedBox(width: 16), // Adjust the spacing between buttons
                 ElevatedButton(
                   onPressed: () {
-                    for (LaneEvents laneEvents in laneEventsList) {
-                      _showEventsList(laneEvents);
-                    }
+                    _showEventsList(laneEventsList);
                   },
                   child: Text('View Events'),
                 ),
@@ -186,6 +184,15 @@ class _TimetableState extends State<Timetable> {
     );
   }
 
+  List<Widget> _buildEventRows(LaneEvents laneEvents) {
+    return [
+      Text('${laneEvents.lane.name} Events', style: TextStyle(fontWeight: FontWeight.bold)),
+      for (TableEvent event in laneEvents.events)
+        _buildEventRow(event, laneEvents),
+      SizedBox(height: 10),
+    ];
+  }
+
   Widget _buildEventRow(TableEvent event, LaneEvents laneEvents) {
     final startTime = TimeOfDay(hour: event.start.hour, minute: event.start.minute);
     final endTime = TimeOfDay(hour: event.end.hour, minute: event.end.minute);
@@ -209,6 +216,7 @@ class _TimetableState extends State<Timetable> {
     final now = DateTime.now();
     final dateTime = DateTime(now.year, now.month, now.day, timeOfDay.hour, timeOfDay.minute);
     return TimeOfDay.fromDateTime(dateTime).format(context);
+
   }
 
   void _deleteEvent(LaneEvents laneEvents, TableEvent event) {
@@ -218,16 +226,17 @@ class _TimetableState extends State<Timetable> {
     });
   }
 
-  void _showEventsList(LaneEvents laneEvents) {
+  void _showEventsList(List<LaneEvents> laneEventsList) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('${laneEvents.lane.name} Events'),
+          title: Text('All Events'),
           content: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (TableEvent event in laneEvents.events)
-                _buildEventRow(event, laneEvents),
+              for (LaneEvents laneEvents in laneEventsList)
+                ..._buildEventRows(laneEvents),
             ],
           ),
         );
