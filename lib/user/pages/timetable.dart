@@ -33,18 +33,44 @@ class _TimetableState extends State<Timetable> {
   TimeOfDay selectedStartTime = TimeOfDay.now();
   TimeOfDay selectedEndTime = TimeOfDay.now();
   String selectedDay = 'Monday';
+  String startTimeText = '';
+  String test = 'test';
+  List<dynamic> eventList = [];
+
+  getEvents() async{
+    dynamic id = await SessionManager().get("user_info");
+
+    try {
+      var res = await http.post(
+          Uri.parse(API.getEvent),
+          body: {
+            'user_id': id['user_id']
+          });
+
+      if(res.statusCode == 200){
+        var resEvent = jsonDecode(res.body);
+        if(resEvent['success'] == true){
+          eventList = resEvent['eventData'];
+          print(eventList);
+        }
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _loadEvents();
+    getEvents();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter Timetable View Demo'),
+        title: Text('Timetable'),
       ),
       body: Column(
         children: [
@@ -56,7 +82,7 @@ class _TimetableState extends State<Timetable> {
                   onPressed: () => _showAddEventDialog(context),
                   child: Text('Add Event'),
                 ),
-                SizedBox(width: 16), // Adjust the spacing between buttons
+                SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () {
                     _showEventsList(laneEventsList);
@@ -98,87 +124,113 @@ class _TimetableState extends State<Timetable> {
 
   void _showAddEventDialog(BuildContext context) {
     String className = '';
-    String buildingInfo = '과학기술2관'; // 기본값은 '과학기술1관'으로 설정
+    String buildingInfo = '과학기술2관';
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Add Event"),
-          content: Column(
-            children: [
-              TextField(
-                onChanged: (value) {
-                  className = value;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Class Name',
-                  hintText: 'Enter class name',
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Text("Add Event"),
+              content: Column(
+                children: [
+                  TextField(
+                    onChanged: (value) {
+                      className = value;
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Class Name',
+                      hintText: 'Enter class name',
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  DropdownButton<String>(
+                    value: buildingInfo,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        buildingInfo = newValue!;
+                      });
+                    },
+                    items: <String>[
+                      '과학기술2관',
+                      '과학기술1관',
+                      '가속기ICT융합관',
+                      '산학협력관',
+                      '농심국제관',
+                      '공공정책관',
+                      '석원경상관',
+                      '문화스포츠관',
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Start Time: ${selectedStartTime.format(context)}'),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final TimeOfDay? picked = await showTimePicker(
+                            context: context,
+                            initialTime: selectedStartTime,
+                          );
+
+                          if ( picked != null ) {
+                            setState(() {
+                              selectedStartTime = picked;
+                            });
+                          }
+                        },
+                        child: Text('Set Time'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('End Time: ${selectedEndTime.format(context)}'),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final TimeOfDay? picked = await showTimePicker(
+                            context: context,
+                            initialTime: selectedEndTime,
+                          );
+
+                          if ( picked != null ) {
+                            setState(() {
+                              selectedEndTime = picked;
+                            });
+                          }
+                        },
+                        child: Text('Set Time'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel'),
                 ),
-              ),
-              SizedBox(height: 10),
-              DropdownButton<String>(
-                value: buildingInfo,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    buildingInfo = newValue!;
-                  });
-                },
-                items: <String>[
-                  '과학기술2관',
-                  '과학기술1관',
-                  '가속기ICT융합관',
-                  '산학협력관',
-                  '농심국제관',
-                  '공공정책관',
-                  '석원경상관',
-                  '문화스포츠관',
-                ].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Start Time: ${selectedStartTime.format(context)}'),
-                  ElevatedButton(
-                    onPressed: () => _selectStartTime(context),
-                    child: Text('Set Time'),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('End Time: ${selectedEndTime.format(context)}'),
-                  ElevatedButton(
-                    onPressed: () => _selectEndTime(context),
-                    child: Text('Set Time'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                _addEvent(className, buildingInfo, selectedDay);
-                Navigator.pop(context);
-              },
-              child: Text('Add'),
-            ),
-          ],
+                TextButton(
+                  onPressed: () {
+                    _addEvent(className, buildingInfo, selectedDay);
+                    Navigator.pop(context);
+                  },
+                  child: Text('Add'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -194,18 +246,22 @@ class _TimetableState extends State<Timetable> {
   }
 
   Widget _buildEventRow(TableEvent event, LaneEvents laneEvents) {
+    String className = event.title;
+    String buildingInfo = '';
     final startTime = TimeOfDay(hour: event.start.hour, minute: event.start.minute);
     final endTime = TimeOfDay(hour: event.end.hour, minute: event.end.minute);
 
     final startTimeString = _formatTimeOfDay(startTime);
     final endTimeString = _formatTimeOfDay(endTime);
 
+    print(event.title);
+
     return ListTile(
       title: Text('${event.title} ($startTimeString - $endTimeString)'),
       trailing: IconButton(
         icon: Icon(Icons.delete),
         onPressed: () {
-          _deleteEvent(laneEvents, event);
+          _deleteEvent(laneEvents, event, className, buildingInfo, selectedDay);
           Navigator.pop(context);
         },
       ),
@@ -216,10 +272,46 @@ class _TimetableState extends State<Timetable> {
     final now = DateTime.now();
     final dateTime = DateTime(now.year, now.month, now.day, timeOfDay.hour, timeOfDay.minute);
     return TimeOfDay.fromDateTime(dateTime).format(context);
-
   }
 
-  void _deleteEvent(LaneEvents laneEvents, TableEvent event) {
+  void _deleteEvent(LaneEvents laneEvents, TableEvent event, String className, String buildingInfo, String selectedDay) async {
+    if (className.isNotEmpty){
+      dynamic id = await SessionManager().get("user_info");
+      final sp = className.split(' - ');
+
+      try {
+        DateTime now = DateTime.now();
+        String formattedDate = "${now.year}-${now.month}-${now.day}";
+
+        var res = await http.post(
+          Uri.parse(API.deleteEvent),
+          body: {
+            'user_id': id['user_id'],
+            'class_name': sp[0]
+          },
+        );
+
+        print('Server Response: $res');
+
+        if(res.statusCode == 200) {
+          var resData = jsonDecode(res.body);
+          if (resData['success']) {
+            Fluttertoast.showToast(msg: 'Event deleted successfully');
+          } else {
+            Fluttertoast.showToast(msg: 'Error: ${resData['error']}');
+          }
+        } else {
+          print('Server Response Body: ${res.body}');
+          Fluttertoast.showToast(msg: 'Error: Unexpected response from server');
+        }
+      } catch (e) {
+        print('Error during event addition: $e');
+        print(e.toString());
+        Fluttertoast.showToast(msg: 'Error occurred. Please try again');
+      }
+    } else {
+      print('Please enter class name and building information');
+    }
     setState(() {
       laneEvents.events.remove(event);
       _saveEvents();
@@ -244,46 +336,10 @@ class _TimetableState extends State<Timetable> {
     );
   }
 
-  void _selectStartTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: selectedStartTime,
-    );
-    if (picked != null && picked != selectedStartTime) {
-      setState(() {
-        selectedStartTime = picked.period == DayPeriod.pm
-            ? picked
-            : TimeOfDay(hour: picked.hour % 12, minute: picked.minute);
-      });
-    }
-  }
-
-  void _selectEndTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: selectedEndTime,
-    );
-    if (picked != null && picked != selectedEndTime) {
-      setState(() {
-        selectedEndTime = picked.period == DayPeriod.pm
-            ? picked
-            : TimeOfDay(hour: picked.hour % 12, minute: picked.minute);
-      });
-    }
-  }
-
-  TimeOfDay _convertTo12HourFormat(TimeOfDay time) {
-    int hour = time.hourOfPeriod;
-    int minute = time.minute;
-    String period = time.period == DayPeriod.am ? 'AM' : 'PM';
-    return TimeOfDay(hour: hour, minute: minute);
-  }
-
   void _addEvent(String className, String buildingInfo, String selectedDay) async {
     if (className.isNotEmpty && buildingInfo.isNotEmpty) {
 
       dynamic id = await SessionManager().get("user_info");
-      print(id);
 
       try {
         DateTime now = DateTime.now();
@@ -370,7 +426,6 @@ class _TimetableState extends State<Timetable> {
       });
     }
   }
-
 
   void _saveEvents() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

@@ -10,5 +10,5 @@ class API {
   static const validateEmail = "$hostConnect/user/validate_email.php";
   static const addEvent = "$hostConnect/user/add_event.php";
   static const getEvent = "$hostConnect/user/get_event.php";
-
+  static const deleteEvent ="$hostConnect/user/delete_event.php";
 }

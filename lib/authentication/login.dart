@@ -78,14 +78,14 @@ class _LoginPageState extends State<LoginPage> {
                   height: 30,
                 ),
                 Text(
-                  'Hello',
+                  'CHALLENGE',
                   style: GoogleFonts.bebasNeue(fontSize: 36.0),
                 ),
                 SizedBox(
                   height: 10,
                 ),
                 Text(
-                  'Welcome back',
+                  'Welcome',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
