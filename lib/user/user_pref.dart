@@ -7,6 +7,5 @@ class RememberUser{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String userJsonData = jsonEncode(userInfo.toJson());
     await preferences.setString("currentUser", userJsonData);
-
   }
 }

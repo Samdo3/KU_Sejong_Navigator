@@ -1,4 +1,5 @@
 import 'dart:async';
+//import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -7,6 +8,8 @@ import 'get_user_location.dart'; //get_user_location.dart 파일을 import
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import '../api/api.dart';
+import 'package:flutter_session_manager/flutter_session_manager.dart';
 
 class RouteData {
   List<LatLng> route;
@@ -24,11 +27,38 @@ class _MapScreenState extends State<MapScreen> {
   late MapboxMapController _controller;
   List<LatLng> route = [];
   List<LatLng> turnPoints = [];
+  List<dynamic> eventList = [];
   LatLng origin =  LatLng(0, 0); // 초기값은 임의로 설정, 실제로는 위치 업데이트 후 값이 할당됩니다.
   LatLng destination =  LatLng(36.610869, 127.287040); // 도착지 좌표 (원하는 좌표로 교체하세요)
   GetLocation getLocation = GetLocation();
   late RouteData routeData; // Store route data
   Map<String, Uint8List> markerImages = {}; // Store marker images
+
+  getEvents() async{
+    dynamic id = await SessionManager().get("user_info");
+
+    print('007000');
+    print(id['user_id']);
+
+
+    try {
+      var res = await http.post(
+          Uri.parse(API.getEvent),
+          body: {
+            'user_id': id['user_id']
+          });
+
+      if(res.statusCode == 200){
+        var resEvent = jsonDecode(res.body);
+        if(resEvent['success'] == true){
+          eventList = resEvent['eventData'];
+          print(eventList.length);
+        }
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   @override
   void initState() {
@@ -55,7 +85,7 @@ class _MapScreenState extends State<MapScreen> {
       });
       await _updateMapWithRoute();
     };
-      await getLocation.determinePosition();
+    await getLocation.determinePosition();
   }
 
 
@@ -150,29 +180,93 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Map Example'),
+        title: Text('Map Exampe'),
       ),
-      body: buildMap(),
+      body:  buildMap(),
+      floatingActionButton: FloatingActionButton(
+        // child: Text('Click'),
+        child: Icon(Icons.location_searching),
+        onPressed: ()=> {
+          getEvents(),
+          showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: ListView(
+                  children: List.generate(
+                    eventList.length, //리스트 개수(건물개수
+                    (index) => GestureDetector(
+                      onTap: () {
+                        // Handle item click here
+                        print("Item $index clicked");
+                        //destination = eventList[index][10];
+                        // You can add your logic to handle the click event
+                      },
+                      child: Container(
+                        height: 100,
+                        width: double.infinity,
+                        margin: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          eventList[index][2] + '\n' + eventList[index][9],
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+            elevation: 50,
+            isDismissible: true, // 바텀시트를 닫을지 말지 설정
+            barrierColor: Colors.grey.withOpacity(0.3), // 바텀시트 아닌 영역의 컬러
+            backgroundColor: Colors.blue.shade200, // 바텀시트 배경 컬러
+            constraints: const BoxConstraints( // 사이즈 조절
+              minWidth: 100,
+              maxWidth: 300,
+              minHeight: 100,
+              maxHeight: 500,
+            ),
+            isScrollControlled: true, // true = 전체 화면 차이
+          )
+        },
+      ),
     );
   }
+
+
+
 
   Widget buildMap() {
     return MapboxMap(
       accessToken: AppConstants.mapBoxAccessToken,
+      styleString: MapboxStyles.SATELLITE_STREETS ,
       initialCameraPosition: CameraPosition(
-        target: LatLng(36.61067, 127.2871), //사실 이 코드 숨길 필요없음
+        target: LatLng(36.61067, 127.2871), //고려대 세종캠퍼스 GPS
         zoom: 15.0,
       ),
+      cameraTargetBounds: CameraTargetBounds( //최대 맵크기 제한
+          LatLngBounds(
+            southwest: LatLng(36.6012, 127.2776),
+            northeast: LatLng(36.6162, 127.2982),
+          )),
+      minMaxZoomPreference: MinMaxZoomPreference(13, null), //최소 확대 레벨
       onMapCreated: (MapboxMapController controller) async {
         setState(() {
           _controller = controller;
         });
 
-    try {
-      await _updateMapWithRoute(); // Update map after initializing controller
-    } catch (error) {
-      print("Error adding polyline: $error");
-    }
+
+        try {
+          await _updateMapWithRoute(); // Update map after initializing controller
+        } catch (error) {
+          print("Error adding polyline: $error");
+        }
       },
     );
   }

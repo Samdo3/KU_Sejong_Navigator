@@ -4,7 +4,12 @@ class User {
   String user_email;
   String user_password;
 
-  User(this.user_id, this.user_name, this.user_email, this.user_password);
+  User(
+      this.user_id,
+      this.user_name,
+      this.user_email,
+      this.user_password
+      );
 
   factory User.fromJson(Map<String, dynamic> json) => User(
     int.parse(json['user_id']),
@@ -20,3 +25,4 @@ class User {
     'user_password': user_password,
   };
 }
+
