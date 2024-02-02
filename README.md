@@ -1,16 +1,2 @@
-# getx_mysql_tutorial
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+#고려대학교 세종캠퍼스 캡스톤 디자인 프로젝트 : Mapbox를 이용한 인도 길찾기
+- 자신의 시간표를 입력해 시간표에 있는 수업이 있는 건물로 실시간 인도 길찾기를 해주는 프로그램입니다.
