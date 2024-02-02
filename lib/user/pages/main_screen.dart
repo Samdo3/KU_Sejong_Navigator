@@ -12,7 +12,7 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Main Screen'),
+        title: Text(''),
       ),
       body: Center(
         child: Column(
@@ -23,9 +23,12 @@ class MainScreen extends StatelessWidget {
                 _AskLocationPermission();
               },
               style: ElevatedButton.styleFrom(
-                fixedSize: Size(120, 50), // Set the desired size for the button
+                fixedSize: Size(240, 100), // Set the desired size for the button
               ),
-              child: Text('경로 안내'),
+              child: Text('경로 안내',
+                style: TextStyle(
+                    fontSize:20.0),
+              )
             ),
             SizedBox(height: 20), // Add some spacing between the buttons
             ElevatedButton(
@@ -33,9 +36,12 @@ class MainScreen extends StatelessWidget {
                 Get.to(() => Timetable());
               },
               style: ElevatedButton.styleFrom(
-                fixedSize: Size(120, 50), // Set the same size for the button
+                fixedSize: Size(240, 100), // Set the same size for the button
               ),
-              child: Text('시간표'),
+              child: Text('시간표',
+                style: TextStyle(
+                    fontSize:20.0),
+              )
             ),
             SizedBox(height: 20),
           ],
