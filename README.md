@@ -3,14 +3,7 @@
 - lib/api/api.dart 에 자신의 IP 입력 필요
 - xampp를 다운받고 xampp.zip에 있는 파일을 C드라이브의 경로에 넣어야 합니다. <br>( htdocs/api_new_members/connection 에 있는 password 입력 필요 )
 
-## KU_Sejong_Navigator 공식 문서 : https://deepwiki.com/Samdo3/KU_Sejong_Navigator/1.2-technology-stack
-
-
-
-
-
-
-
-
-
 ![스크린샷 2024-02-02 151015](https://github.com/Samdo3/KU_Sejong_Navigator/assets/97665005/9d166414-7efa-495b-b323-07f5985fd4d0)
+
+## 자세한 내용은 ⬇️
+## KU_Sejong_Navigator 공식 문서 : https://deepwiki.com/Samdo3/KU_Sejong_Navigator/1.2-technology-stack
